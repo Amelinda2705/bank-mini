@@ -9,7 +9,6 @@ if (isset($_POST['submit'])) {
         exit;
     }
 
-    // Use prepared statements to prevent SQL injection
     $stmt = $conn->prepare("INSERT INTO kelas (nama_kelas) VALUES (?)");
     $stmt->bind_param("s", $nama);
 
@@ -24,4 +23,3 @@ if (isset($_POST['submit'])) {
 } else {
     header('Location: form.php');
 }
-?>

@@ -30,6 +30,9 @@ $kelas = $statement->fetchAll(PDO::FETCH_ASSOC);
             <li class="nav-item">
                 <a class="nav-link" href="../data_nasabah.php">Data Nasabah</a>
             </li>
+      <li class="nav-item">
+        <a class="nav-link" href="../data_perjurusan.php">Data PerJurusan</a>
+      </li>
             <li class="nav-item">
                 <a class="nav-link" href="../jurusan/data_jurusan.php">Data Jurusan</a>
             </li>
@@ -37,10 +40,12 @@ $kelas = $statement->fetchAll(PDO::FETCH_ASSOC);
                 <a class="nav-link active" href="data_kelas.php">Data Kelas</a>
             </li>
             <li class="nav-item dropdown" id="dropdown-aksi">
-                <a class="nav-link dropdown-toggle" href="#"  id="dropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">Aksi</a>
+                <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">Aksi</a>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                     <li><a class="dropdown-item" href="../form_transaksi.php">Tambah Transaksi</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="../form_nasabah.php">Tambah Data Nasabah</a></li>
                     <li><a class="dropdown-item" href="../jurusan/form.php">Tambah Data Jurusan</a></li>
                     <li><a class="dropdown-item" href="form.php">Tambah Data Kelas</a></li>
@@ -57,7 +62,6 @@ $kelas = $statement->fetchAll(PDO::FETCH_ASSOC);
             </thead>
             <tbody>
                 <?php
-                // menampilkan semua data
                 $q = $conn->query("SELECT * FROM kelas");
                 while ($dt = $q->fetch_assoc()) :
                 ?>

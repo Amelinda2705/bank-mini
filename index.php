@@ -6,6 +6,7 @@ $filter_end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $filter_jenis_transaksi = isset($_GET['jenis_transaksi']) ? $_GET['jenis_transaksi'] : '';
 $filter_no_rekening = isset($_GET['no_rekening']) ? $_GET['no_rekening'] : '';
 $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : '';
+
 ?>
 
 <!DOCTYPE html>
@@ -32,6 +33,9 @@ $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : ''
             <li class="nav-item">
                 <a class="nav-link" href="data_nasabah.php">Data Nasabah</a>
             </li>
+      <li class="nav-item">
+        <a class="nav-link" href="data_perjurusan.php">Data PerJurusan</a>
+      </li> 
             <li class="nav-item">
                 <a class="nav-link" href="jurusan/data_jurusan.php">Data Jurusan</a>
             </li>
@@ -39,10 +43,12 @@ $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : ''
                 <a class="nav-link" href="kelas/data_kelas.php">Data Kelas</a>
             </li>
             <li class="nav-item dropdown" id="dropdown-aksi">
-                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Aksi</a>
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Aksi</a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="form_transaksi.php">Tambah Transaksi</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="form_nasabah.php">Tambah Data Nasabah</a></li>
                     <li><a class="dropdown-item" href="jurusan/form.php">Tambah Data Jurusan</a></li>
                     <li><a class="dropdown-item" href="kelas/form.php">Tambah Data Kelas</a></li>
@@ -86,13 +92,8 @@ $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : ''
                 const startDate = document.getElementById('start_date').value;
                 const endDate = document.getElementById('end_date').value;
 
-                // if (!startDate || !endDate) {
-                //     alert('Tanggal Mulai dan Tanggal Akhir tidak boleh kosong.');
-                //     return false;
-                // }
-
                 if (startDate > endDate) {
-                    alert('Tanggal Mulai tidak boleh lebih besar dari Tanggal Akhir');
+                    alert('Tanggal mulai tidak boleh lebih besar dari tanggal akhir.');
                     return false;
                 }
                 return true;
@@ -111,7 +112,6 @@ $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : ''
             </thead>
             <tbody>
                 <?php
-                // Filter berdasarkan tanggal, jenis transaksi, nomor rekening, dan nama nasabah
                 $sql_transaksi = "
                     SELECT rt.id_nasabah, an.no_rekening, an.nama, rt.jenis_transaksi, rt.jumlah, rt.tanggal, rt.saldo_setelah
                     FROM riwayat_transaksi rt
@@ -121,7 +121,6 @@ $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : ''
                 $conditions = [];
 
                 if ($filter_start_date && $filter_end_date) {
-                    // Menambahkan waktu akhir sebagai jam 23:59:59 di tanggal akhir
                     $filter_end_date .= " 23:59:59";
                     $conditions[] = "rt.tanggal BETWEEN :start_date AND :end_date";
                 }
@@ -155,12 +154,12 @@ $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : ''
                 }
 
                 if ($filter_no_rekening) {
-                    $filter_no_rekening = '%' . $filter_no_rekening . '%';
+                    $filter_no_rekening = $filter_no_rekening . '%';
                     $statement_transaksi->bindParam(':no_rekening', $filter_no_rekening);
                 }
 
                 if ($filter_nama_nasabah) {
-                    $filter_nama_nasabah = '%' . $filter_nama_nasabah . '%';
+                    $filter_nama_nasabah = $filter_nama_nasabah . '%';
                     $statement_transaksi->bindParam(':nama_nasabah', $filter_nama_nasabah);
                 }
 

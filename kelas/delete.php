@@ -4,7 +4,6 @@ require_once '../koneksi.php';
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Check if there are any akun_nasabah records associated with this kelas
     $sql_check = "SELECT COUNT(*) FROM akun_nasabah WHERE id_kelas = ?";
     $statement_check = $pdo->prepare($sql_check);
     $statement_check->execute([$id]);

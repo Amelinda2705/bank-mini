@@ -4,20 +4,39 @@ require_once 'koneksi.php';
 
 $results_per_page = 10;
 $params = [];
-$status_condition = '';
+$conditions = [];
 
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 $starting_limit = ($page - 1) * $results_per_page;
+
+// Dapatkan data jurusan dari database
+$sql_jurusan = "SELECT id_jurusan, nama_jurusan FROM jurusan";
+$statement_jurusan = $pdo->prepare($sql_jurusan);
+$statement_jurusan->execute();
+$jurusan_list = $statement_jurusan->fetchAll(PDO::FETCH_ASSOC);
+
+// Ambil jurusan pertama sebagai default jika jurusan tidak dipilih
+$jurusan = isset($_GET['jurusan']) && !empty($_GET['jurusan']) ? $_GET['jurusan'] : $jurusan_list[0]['id_jurusan'];
 
 $status = isset($_GET['status']) && !empty($_GET['status']) ? $_GET['status'] : null;
 
 if ($status) {
   $status_value = ($status === 'tidak-aktif') ? 'Tidak Aktif' : $status;
-  $status_condition = "WHERE status = :status";
+  $conditions[] = "status = :status";
   $params[':status'] = $status_value;
 }
 
-$sql_count = "SELECT COUNT(*) AS total FROM akun_nasabah $status_condition";
+if ($jurusan) {
+  $conditions[] = "id_jurusan = :jurusan";
+  $params[':jurusan'] = $jurusan;
+}
+
+$where_clause = '';
+if (count($conditions) > 0) {
+  $where_clause = "WHERE " . implode(' AND ', $conditions);
+}
+
+$sql_count = "SELECT COUNT(*) AS total FROM akun_nasabah $where_clause";
 $statement_count = $pdo->prepare($sql_count);
 $statement_count->execute($params);
 $row_count = $statement_count->fetch();
@@ -31,10 +50,13 @@ if ($page > $total_pages) {
   $page = 1;
 }
 
-$sql_nasabah = "SELECT * FROM akun_nasabah $status_condition LIMIT :limit OFFSET :offset";
+$sql_nasabah = "SELECT * FROM akun_nasabah $where_clause LIMIT :limit OFFSET :offset";
 $statement_nasabah = $pdo->prepare($sql_nasabah);
 if ($status) {
   $statement_nasabah->bindValue(':status', $params[':status'], PDO::PARAM_STR);
+}
+if ($jurusan) {
+  $statement_nasabah->bindValue(':jurusan', $params[':jurusan'], PDO::PARAM_INT);
 }
 $statement_nasabah->bindValue(':limit', $results_per_page, PDO::PARAM_INT);
 $statement_nasabah->bindValue(':offset', $starting_limit, PDO::PARAM_INT);
@@ -47,13 +69,9 @@ $statement_kelas = $pdo->prepare($sql_kelas);
 $statement_kelas->execute();
 $kelas_list = $statement_kelas->fetchAll(PDO::FETCH_ASSOC);
 
-$sql_jurusan = "SELECT id_jurusan, nama_jurusan FROM jurusan";
-$statement_jurusan = $pdo->prepare($sql_jurusan);
-$statement_jurusan->execute();
-$jurusan_list = $statement_jurusan->fetchAll(PDO::FETCH_ASSOC);
-
 $kelas_map = array_column($kelas_list, 'nama_kelas', 'id_kelas');
 $jurusan_map = array_column($jurusan_list, 'nama_jurusan', 'id_jurusan');
+
 ?>
 
 <!DOCTYPE html>
@@ -74,6 +92,10 @@ $jurusan_map = array_column($jurusan_list, 'nama_jurusan', 'id_jurusan');
     th {
       vertical-align: middle;
     }
+    .jurusan-btn.active {
+      background-color: #007bff;
+      color: white;
+    }
   </style>
 
 </head>
@@ -88,10 +110,10 @@ $jurusan_map = array_column($jurusan_list, 'nama_jurusan', 'id_jurusan');
         <a class="nav-link" aria-current="page" href="index.php">Data Transaksi</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link active" href="data_nasabah.php">Data Nasabah</a>
+        <a class="nav-link" href="data_nasabah.php">Data Nasabah</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="data_perjurusan.php">Data PerJurusan</a>
+        <a class="nav-link active" href="data_perjurusan.php">Data PerJurusan</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="jurusan/data_jurusan.php">Data Jurusan</a>
@@ -112,19 +134,16 @@ $jurusan_map = array_column($jurusan_list, 'nama_jurusan', 'id_jurusan');
         </ul>
       </li>
     </ul>
-    <legend class="mt-4" id="data_nasabah">Data Nasabah: </legend>
-    <form method="GET" action="data_nasabah.php" class="row g-3 mb-3">
-      <div class="col-md-2">
-        <select name="status" id="status_filter" class="form-select">
-          <option value="" <?= !isset($_GET['status']) || $_GET['status'] === '' ? 'selected' : '' ?>>Semua</option>
-          <option value="aktif" <?= isset($_GET['status']) && $_GET['status'] == 'aktif' ? 'selected' : '' ?>>Aktif</option>
-          <option value="tidak-aktif" <?= isset($_GET['status']) && ($_GET['status'] == 'Tidak Aktif' || $_GET['status'] == 'tidak-aktif') ? 'selected' : '' ?>>Tidak Aktif</option>
-        </select>
-      </div>
-      <div class="col-md-4 align-self-end">
-        <button type="submit" class="btn btn-primary">Filter</button>
-      </div>
-    </form>
+
+    <legend class="mt-4" id="data_perjurusan">Data Nasabah Perjurusan: </legend>
+
+    <div class="my-3">
+      <?php foreach ($jurusan_list as $jur): ?>
+        <a href="data_perjurusan.php?jurusan=<?= $jur['id_jurusan'] ?>&status=<?= urlencode($status ?? '') ?>" 
+           class="btn m-1 jurusan-btn btn-outline-primary <?= ($jurusan == $jur['id_jurusan']) ? 'active' : '' ?>"><?= htmlspecialchars($jur['nama_jurusan']) ?></a>
+      <?php endforeach; ?>
+    </div>
+
 
     <table class="table table-bordered text-center mb-5">
       <thead>
@@ -134,11 +153,7 @@ $jurusan_map = array_column($jurusan_list, 'nama_jurusan', 'id_jurusan');
           <th scope="col">Nama Nasabah</th>
           <th scope="col">Kelas</th>
           <th scope="col">Jurusan</th>
-          <th scope="col">Jenis Kelamin</th>
-          <th scope="col">Tanggal Pembuatan</th>
           <th scope="col">Saldo</th>
-          <th scope="col">Status</th>
-          <th scope="col" colspan="2">Aksi</th>
         </tr>
       </thead>
       <tbody>
@@ -151,21 +166,7 @@ $jurusan_map = array_column($jurusan_list, 'nama_jurusan', 'id_jurusan');
             <td><?= htmlspecialchars($n['nama']) ?></td>
             <td><?= isset($kelas_map[$n['id_kelas']]) ? htmlspecialchars($kelas_map[$n['id_kelas']]) : 'N/A' ?></td>
             <td><?= isset($jurusan_map[$n['id_jurusan']]) ? htmlspecialchars($jurusan_map[$n['id_jurusan']]) : 'N/A' ?></td>
-            <td><?= htmlspecialchars($n['jenis_kelamin']) ?></td>
-            <td><?= htmlspecialchars($n['tanggal_pembuatan']) ?></td>
             <td><?= number_format($n['saldo'], 0, ',', '.') ?></td>
-            <td><?= htmlspecialchars($n['status']) ?></td>
-            <td><a href="update.php?id=<?= $n['id_nasabah'] ?>" class="text-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                </svg>
-              </a></td>
-            <td><a href="delete.php?id=<?= $n['id_nasabah'] ?>" class="text-danger" onclick="return confirm('Anda yakin akan menghapus data ini?')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                  <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
-                </svg>
-              </a></td>
           </tr>
         <?php endforeach; ?>
       </tbody>
@@ -174,19 +175,19 @@ $jurusan_map = array_column($jurusan_list, 'nama_jurusan', 'id_jurusan');
       <ul class="pagination justify-content-center">
         <?php if ($page > 1): ?>
           <li class="page-item">
-            <a class="page-link" href="data_nasabah.php?page=<?= $page - 1 ?>&status=<?= urlencode($status ?? '') ?>">Sebelumnya</a>
+            <a class="page-link" href="data_perjurusan.php?page=<?= $page - 1 ?>&jurusan=<?= urlencode($jurusan) ?>&status=<?= urlencode($status ?? '') ?>">Sebelumnya</a>
           </li>
         <?php endif; ?>
 
         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
           <li class="page-item <?= $i == $page ? 'active' : '' ?>">
-            <a class="page-link" href="data_nasabah.php?page=<?= $i ?>&status=<?= urlencode($status ?? '') ?>"><?= $i ?></a>
+            <a class="page-link" href="data_perjurusan.php?page=<?= $i ?>&jurusan=<?= urlencode($jurusan) ?>&status=<?= urlencode($status ?? '') ?>"><?= $i ?></a>
           </li>
         <?php endfor; ?>
 
         <?php if ($page < $total_pages): ?>
           <li class="page-item">
-            <a class="page-link" href="data_nasabah.php?page=<?= $page + 1 ?>&status=<?= urlencode($status ?? '') ?>">Selanjutnya</a>
+            <a class="page-link" href="data_perjurusan.php?page=<?= $page + 1 ?>&jurusan=<?= urlencode($jurusan) ?>&status=<?= urlencode($status ?? '') ?>">Selanjutnya</a>
           </li>
         <?php endif; ?>
       </ul>

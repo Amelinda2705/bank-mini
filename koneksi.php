@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
-$username = "Admin"; 
-$password = "Admin"; 
+$username = "Admin";
+$password = "Admin";
 $db = "bank_mini";
 
 $conn = new mysqli($host, $username, $password, $db);
@@ -22,4 +22,3 @@ try {
 } catch (PDOException $e) {
     throw new PDOException($e->getMessage(), (int)$e->getCode());
 }
-?>

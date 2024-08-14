@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $saldo = $_POST['saldo'] ?? '';
     $status = $_POST['status'] ?? '';
 
-    // Validasi data
     if (empty($nama) || empty($id_kelas) || empty($id_jurusan) || empty($jenis_kelamin) || empty($saldo)) {
         echo "<script>alert('Semua field wajib diisi.'); window.history.back();</script>";
         exit();
@@ -31,9 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nasabah = $statement->fetch();
 }
 
-// Mengambil data kelas
 $kelas = $pdo->query("SELECT id_kelas, nama_kelas FROM kelas")->fetchAll(PDO::FETCH_ASSOC);
-// Mengambil data jurusan
+
 $jurusan = $pdo->query("SELECT id_jurusan, nama_jurusan FROM jurusan")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -50,7 +48,7 @@ $jurusan = $pdo->query("SELECT id_jurusan, nama_jurusan FROM jurusan")->fetchAll
     <link rel="stylesheet" href="style.php" media="screen">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script>
-        const maxSaldo = 100000000000; // Maximum saldo limit
+        const maxSaldo = 100000000000;
 
         function validateName() {
             const nama = document.getElementById('nama').value.trim();
@@ -156,7 +154,9 @@ $jurusan = $pdo->query("SELECT id_jurusan, nama_jurusan FROM jurusan")->fetchAll
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Aksi</a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="form_transaksi.php">Tambah Transaksi</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="form_nasabah.php">Tambah Data Nasabah</a></li>
                     <li><a class="dropdown-item" href="jurusan/form.php">Tambah Data Jurusan</a></li>
                     <li><a class="dropdown-item" href="kelas/form.php">Tambah Data Kelas</a></li>

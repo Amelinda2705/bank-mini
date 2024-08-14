@@ -6,7 +6,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $jenis_transaksi = $_POST['jenis_transaksi'];
     $jumlah = $_POST['jumlah'];
 
-    // Fetch nasabah data
     $sql = "SELECT * FROM akun_nasabah WHERE no_rekening = ?";
     $statement = $pdo->prepare($sql);
     $statement->execute([$no_rekening]);
@@ -21,15 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($jenis_transaksi == 'setor') {
             $saldo_baru = $saldo + $jumlah;
         } elseif ($jenis_transaksi == 'tarik') {
-            if ($saldo >= $jumlah) {
                 $saldo_baru = $saldo - $jumlah;
-            } else {
-                echo "<script>alert('Saldo tidak mencukupi'); window.location.href='form_transaksi.php'; history.back();</script>";
-                exit();
-            }
         }
 
-        // Update saldo nasabah
         $sql_update = "UPDATE akun_nasabah SET saldo = ? WHERE no_rekening = ?";
         $statement_update = $pdo->prepare($sql_update);
         $statement_update->execute([$saldo_baru, $no_rekening]);
@@ -45,4 +38,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 }
-?>

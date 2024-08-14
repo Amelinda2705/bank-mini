@@ -8,18 +8,16 @@ $kelas = $statement->fetchAll(PDO::FETCH_ASSOC);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $kelas_baru = $_POST['nama_kelas'];
 
-    // Validasi input
     if (empty($kelas_baru)) {
         echo "<script>alert('Nama kelas tidak boleh kosong.'); window.history.back();</script>";
         exit();
     }
 
-    // Menyimpan data ke tabel kelas
     $sql = "INSERT INTO kelas (nama_kelas) VALUES (?)";
     $statement = $pdo->prepare($sql);
     $statement->execute([$kelas_baru]);
 
-    header('Location: form.php'); // Redirect setelah berhasil
+    header('Location: form.php'); 
 }
 
 ?>
@@ -58,6 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <li class="nav-item">
                 <a class="nav-link" href="../data_nasabah.php">Data Nasabah</a>
             </li>
+      <li class="nav-item">
+        <a class="nav-link" href="../data_perjurusan.php">Data PerJurusan</a>
+      </li>
             <li class="nav-item">
                 <a class="nav-link" href="../jurusan/data_jurusan.php">Data Jurusan</a>
             </li>
@@ -88,9 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </form>
         </div>
-
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 </body>

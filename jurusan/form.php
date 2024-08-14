@@ -32,6 +32,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="../data_nasabah.php">Data Nasabah</a>
             </li>
+      <li class="nav-item">
+        <a class="nav-link" href="../data_perjurusan.php">Data PerJurusan</a>
+      </li>
             <li class="nav-item">
                 <a class="nav-link" href="data_jurusan.php">Data Jurusan</a>
             </li>

@@ -10,7 +10,6 @@ if (isset($_POST['submit'])) {
         exit;
     }
 
-    // Use prepared statements to prevent SQL injection
     $stmt = $conn->prepare("UPDATE jurusan SET nama_jurusan = ? WHERE id_jurusan = ?");
     $stmt->bind_param("si", $nama, $id);
 
@@ -25,4 +24,3 @@ if (isset($_POST['submit'])) {
 } else {
     header('Location: form.php');
 }
-?>

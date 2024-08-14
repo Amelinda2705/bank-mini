@@ -1,27 +1,23 @@
 <?php
+
 require_once 'koneksi.php';
 
-
-// Fetch all kelas records
 $sql_kelas = "SELECT id_kelas, nama_kelas FROM kelas";
 $statement_kelas = $pdo->prepare($sql_kelas);
 $statement_kelas->execute();
 $kelas_list = $statement_kelas->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch all jurusan records
 $sql_jurusan = "SELECT id_jurusan, nama_jurusan FROM jurusan";
 $statement_jurusan = $pdo->prepare($sql_jurusan);
 $statement_jurusan->execute();
 $jurusan_list = $statement_jurusan->fetchAll(PDO::FETCH_ASSOC);
 
-// Map kelas and jurusan for easy lookup
 $kelas_map = array_column($kelas_list, 'nama_kelas', 'id_kelas');
 $jurusan_map = array_column($jurusan_list, 'nama_jurusan', 'id_jurusan');
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nama = $_POST['nama'];
-  $no_rekening = $_POST['no_rekening'];
+  // $no_rekening = $_POST['no_rekening'];
   $id_kelas = $_POST['id_kelas'];
   $id_jurusan = $_POST['id_jurusan'];
   $jenis_kelamin = $_POST['jenis_kelamin'];
@@ -29,18 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $saldo = $_POST['saldo'];
   $status = $_POST['status'];
 
-  // Validate the length of the account number
-  if (strlen($no_rekening) > 12) {
-    echo "<script>alert('No rekening tidak boleh melebihi 12 digit.'); window.history.back();</script>";
-    exit();
-  }
-
-  // Insert the new nasabah record
-  $sql = "INSERT INTO akun_nasabah (nama, no_rekening, id_kelas, id_jurusan, jenis_kelamin, tanggal_pembuatan, saldo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+  $sql = "INSERT INTO akun_nasabah (nama, id_kelas, id_jurusan, jenis_kelamin, tanggal_pembuatan, saldo, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
   $statement = $pdo->prepare($sql);
-  $statement->execute([$nama, $no_rekening, $id_kelas, $id_jurusan, $jenis_kelamin, $tanggal_pembuatan, $saldo, $status]);
-
-  header('Location: index.php');
+  $statement->execute([$nama, $id_kelas, $id_jurusan, $jenis_kelamin, $tanggal_pembuatan, $saldo, $status]);
+  echo "<script>alert('Data nasabah berhasil ditambahkan');</script>";
 }
 ?>
 
@@ -57,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <script>
-    const maxSaldo = 100000000000; // Maximum saldo limit
+    const maxSaldo = 100000000000;
 
     function validateName() {
       const nama = document.getElementById('nama').value.trim();
@@ -95,15 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       return true;
     }
 
-    function validateTanggalPembuatan() {
-      const tanggal_pembuatan = document.getElementById('tanggal_pembuatan').value.trim();
-      if (tanggal_pembuatan === "") {
-        alert('Tanggal pembuatan harus diisi');
-        return false;
-      }
-      return true;
-    }
-
     function validateSaldo() {
       const saldo = parseFloat(document.getElementById('saldo').value.trim());
       if (isNaN(saldo)) {
@@ -115,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         return false;
       }
       if (saldo > maxSaldo) {
-        alert('Saldo tidak boleh melebihi batas maksimal Rp 1.000.000.');
+        alert('Saldo tidak boleh melebihi batas maksimal Rp 100.000.000.000.');
         return false;
       }
       return true;
@@ -136,10 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
       return confirm('Apakah anda yakin ingin menyimpan data ini?');
     }
-
-    document.getElementById('formNasabah').onsubmit = function() {
-      return confirmSave();
-    };
   </script>
 
 </head>
@@ -147,35 +122,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
   <div class="container mt-5">
-        <h2 class="mb-4">Bank Mini</h2>
-        <ul class="nav nav-pills nav-fill">
-            <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="index.php">Data Transaksi</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="data_nasabah.php">Data Nasabah</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="jurusan/data_jurusan.php">Data Jurusan</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="kelas/data_kelas.php">Data Kelas</a>
-            </li>
-            <li class="nav-item dropdown" id="dropdown-aksi">
-                <a class="nav-link dropdown-toggle active" href="#" data-bs-toggle="dropdown" aria-expanded="false">Aksi</a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="form_transaksi.php">Tambah Transaksi</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item active" href="form_nasabah.php">Tambah Data Nasabah</a></li>
-                    <li><a class="dropdown-item" href="jurusan/form.php">Tambah Data Jurusan</a></li>
-                    <li><a class="dropdown-item" href="kelas/form.php">Tambah Data Kelas</a></li>
-                </ul>
-            </li>
+    <h2 class="mb-4">Bank Mini</h2>
+    
+    <!-- navbar -->
+    <ul class="nav nav-pills nav-fill">
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="index.php">Data Transaksi</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="data_nasabah.php">Data Nasabah</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="data_perjurusan.php">Data PerJurusan</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="jurusan/data_jurusan.php">Data Jurusan</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="kelas/data_kelas.php">Data Kelas</a>
+      </li>
+      <li class="nav-item dropdown" id="dropdown-aksi">
+        <a class="nav-link dropdown-toggle active" href="#" data-bs-toggle="dropdown" aria-expanded="false">Aksi</a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="form_transaksi.php">Tambah Transaksi</a></li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <li><a class="dropdown-item active" href="form_nasabah.php">Tambah Data Nasabah</a></li>
+          <li><a class="dropdown-item" href="jurusan/form.php">Tambah Data Jurusan</a></li>
+          <li><a class="dropdown-item" href="kelas/form.php">Tambah Data Kelas</a></li>
         </ul>
+      </li>
+    </ul>
+
+    <!-- form -->
     <h2 class="text-center mt-5">Membuat Akun Nasabah Bank Mini</h2>
     <div class="m-5 px-5">
       <legend>Data Nasabah Baru</legend>
-      <form action="add.php" method="post" onsubmit="return confirmSave();" class="row g-3" id="formNasabah">
+      <form method="post" onsubmit="return confirmSave();" class="row g-3" id="formNasabah">
         <div class="col-12">
           <label for="nama" class="form-label">Nama Nasabah: </label>
           <input type="text" name="nama" id="nama" class="form-control">
@@ -211,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="col-md-4">
           <label for="saldo" class="form-label">Saldo: </label>
-          <input type="number" name="saldo" id="saldo" class="form-control" step="0.01">
+          <input type="number" name="saldo" id="saldo" class="form-control">
         </div>
         <div class="col-md-4">
           <label for="status" class="form-label">Status: </label>

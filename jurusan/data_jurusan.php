@@ -27,6 +27,9 @@ require_once '../koneksi.php';
             <li class="nav-item">
                 <a class="nav-link" href="../data_nasabah.php">Data Nasabah</a>
             </li>
+      <li class="nav-item">
+        <a class="nav-link" href="../data_perjurusan.php">Data PerJurusan</a>
+      </li>
             <li class="nav-item">
                 <a class="nav-link active" href="data_jurusan.php">Data Jurusan</a>
             </li>
@@ -37,7 +40,9 @@ require_once '../koneksi.php';
                 <a class="nav-link dropdown-toggle" id="dropdownMenuLink" role="button" href="#" data-bs-toggle="dropdown" aria-expanded="false">Aksi</a>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                     <li><a class="dropdown-item" href="../form_transaksi.php">Tambah Transaksi</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="../form_nasabah.php">Tambah Data Nasabah</a></li>
                     <li><a class="dropdown-item" href="form.php">Tambah Data Jurusan</a></li>
                     <li><a class="dropdown-item" href="../kelas/data_kelas.php">Tambah Data Kelas</a></li>
@@ -54,7 +59,6 @@ require_once '../koneksi.php';
             </thead>
             <tbody>
                 <?php
-                // menampilkan semua data
                 $q = $conn->query("SELECT * FROM jurusan");
                 while ($dt = $q->fetch_assoc()) :
                 ?>
