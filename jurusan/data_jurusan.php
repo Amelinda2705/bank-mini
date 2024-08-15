@@ -27,9 +27,9 @@ require_once '../koneksi.php';
             <li class="nav-item">
                 <a class="nav-link" href="../data_nasabah.php">Data Nasabah</a>
             </li>
-      <li class="nav-item">
-        <a class="nav-link" href="../data_perjurusan.php">Data PerJurusan</a>
-      </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../data_perjurusan.php">Data PerJurusan</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link active" href="data_jurusan.php">Data Jurusan</a>
             </li>
@@ -49,6 +49,7 @@ require_once '../koneksi.php';
                 </ul>
             </li>
         </ul>
+        
         <legend id="data_nasabah" class="mt-4">Data Jurusan:</legend>
         <table class="table table-bordered align-middle text-align-center mb-5">
             <thead>

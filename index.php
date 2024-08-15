@@ -1,5 +1,11 @@
 <?php
+session_start();
 require_once 'koneksi.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
 
 $filter_start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $filter_end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
@@ -33,9 +39,9 @@ $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : ''
             <li class="nav-item">
                 <a class="nav-link" href="data_nasabah.php">Data Nasabah</a>
             </li>
-      <li class="nav-item">
-        <a class="nav-link" href="data_perjurusan.php">Data PerJurusan</a>
-      </li> 
+            <li class="nav-item">
+                <a class="nav-link" href="data_perjurusan.php">Data PerJurusan</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="jurusan/data_jurusan.php">Data Jurusan</a>
             </li>
@@ -87,6 +93,10 @@ $filter_nama_nasabah = isset($_GET['nama_nasabah']) ? $_GET['nama_nasabah'] : ''
             </div>
         </form>
 
+        <form action="export_excel.php" method="post">
+            <input type="submit" class="btn btn-success" value="Export to Excel">
+        </form>
+        
         <script>
             function validateDateRange() {
                 const startDate = document.getElementById('start_date').value;
